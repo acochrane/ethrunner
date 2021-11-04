@@ -1,0 +1,13 @@
+[Unit]
+Description = ethminer in tmux wrapper
+After=network.target auditd.service
+
+[Service]
+Type = forking
+ExecStart = /usr/local/bin/ethminer.sh start
+ExecStop = /usr/local/bin/ethminer.sh stop
+ExecReload = /usr/local/bin/ethminer.sh reload
+#Restart = always
+
+[Install]
+WantedBy = multi-user.target
