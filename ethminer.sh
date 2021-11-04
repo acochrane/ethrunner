@@ -1,35 +1,40 @@
 #!/bin/bash
 #/usr/local/bin/ethminer.sh
-#
+
+# where is it installed?
+
+source /etc/ethrunner/ethrunner.vars
 
 function d_start ( )
 {
-	echo  "ethminer: starting service"
-	tmux \
-	    new-session -s ethminer -d \
-	    "/home/acochrane/while_eth.sh"
-	sleep  5
-	PID=$(ps -C ethminer -o pid | tail -n 1)
-	echo $PID > /tmp/ethminer.pid
-	echo "ethminer is running in a tmux session, try 'tmux a -t ethminer'"
-	echo "PID is $PID"
-
+    echo  "ethminer: starting service"
+    echo "RUN" > $ETHRUNNER_STATUS
+    
+    tmux \
+	new-session -s ethminer -d \
+	"$ETHRUNNER_PATH/while_eth.sh"
+    sleep  5
+    PID=$(ps -C ethminer -o pid | tail -n 1)
+    echo $PID > $ETHMINER_PID
+    echo "ethminer is running in a tmux session, try 'tmux a -t ethminer'"
+    echo "PID is $PID"
+    
 }
 
 function d_stop ( )
 {
-	echo  "ethminer: stopping Service (PID = $(cat /tmp/ethminer.pid))" 
-	rm /home/acochrane/mine.status
-	kill $(cat /tmp/ethminer.pid)
-	rm /tmp/ethminer.pid
+	echo  "ethminer: stopping Service (PID = $(cat $ETHMINER_PID))" 
+	rm $ETHRUNNER_STATUS
+	kill $(cat $ETHMINER_PID)
+	rm $ETHMINER_PID
 	tmux kill-session -t ethminer
 }
  
 function d_status ( ) 
 {
-    if [ -f /tmp/ethminer.pid ] ; then
+    if [ -f $ETHMINER_PID ] ; then
 	tmux capture-pane -pt ethminer -S -0 
-	echo  "PID indication file $(cat /tmp/ethminer.pid 2> /dev/null)"
+	echo  "PID indication file $(cat $ETHMINER_PID 2> /dev/null)"
     else
 	echo  "ethminer isn't running"
     fi
